@@ -13,8 +13,12 @@ var DoctorRuta = require("../models/doctor");
 // Obtener todos los doctores
 // ==========================
 app.get("/", (req, res, next) => {
+  var desde = req.query.desde || 0;
+  desde = Number(desde);
   //busca en la tabla de doctores, y muestra solo name, email, img, role
   DoctorRuta.find({}, "name email img role")
+    .skip(desde)
+    .limit(5)
     // ejecuta la instrucción
     .exec((err, doctores) => {
       if (err) {
@@ -25,10 +29,14 @@ app.get("/", (req, res, next) => {
         });
       }
 
-      res.status(200).json({
-        ok: true,
-        doctores: doctores //importante recalcar que ambos nombres de las variables no tienen relevancia
+      DoctorRuta.count({}, (err, conteo)=>{
+        res.status(200).json({
+          ok: true,
+          doctores: doctores, //importante recalcar que ambos nombres de las variables no tienen relevancia
+          total: conteo
+        });
       });
+      
     });
 });
 
